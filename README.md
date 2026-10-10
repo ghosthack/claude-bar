@@ -5,7 +5,7 @@ current model, reasoning effort, context usage, and — for Claude.ai Pro/Max
 subscribers — 5-hour rate limit usage with a reset countdown.
 
 ```
-🧠 Fable 5 high 💾 33k █░░░ 3% ⏳ 4h19m █░░░ 6% 📁 ~/Projects/claude-bar
+🧠 Fable 5 high 💾 33k █░░░ 3% ⏳ 4h19m █░░░ 6% 📁 ~/Projects/claude-bar ⎇ main
 ```
 
 > **Note:** this repo ships a [`CLAUDE.md`](CLAUDE.md) that tells Claude Code to
@@ -20,6 +20,8 @@ subscribers — 5-hour rate limit usage with a reset countdown.
 - **Rate limit** — ⏳ time until reset, then a bar and percentage
   of the 5-hour usage window consumed. Appears after the first API response;
   absent on usage-based billing plans.
+- **Directory** — 📁 working directory (home shortened to `~`), plus `⎇` and
+  the git branch (short SHA when detached) inside a repo.
 
 ## Install
 

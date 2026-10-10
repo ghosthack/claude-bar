@@ -2,6 +2,7 @@
 // Claude Code status line: model + effort | context tokens + usage bar | path.
 const fs = require('fs');
 const os = require('os');
+const { execFileSync } = require('child_process');
 
 const CELLS = 4;                        // number of bar characters
 const FILL = '█';                       // highest-density block
@@ -19,14 +20,32 @@ function fmt(n) {
   return String(n);
 }
 
+function getCwd(data) {
+  return (data.workspace && data.workspace.current_dir) || data.cwd || '';
+}
+
 // Working directory, with $HOME collapsed to ~ (e.g. /Users/you/Projects -> ~/Projects).
-function fmtPath(data) {
-  const dir = (data.workspace && data.workspace.current_dir) || data.cwd || '';
+function fmtPath(dir) {
   if (!dir) return '';
   const home = os.homedir();
   if (dir === home) return '~';
   if (home && dir.startsWith(home + '/')) return '~' + dir.slice(home.length);
   return dir;
+}
+
+// Current branch name, or short SHA when in a detached HEAD state. Empty outside a git repo.
+function gitBranch(dir) {
+  if (!dir) return '';
+  const opts = { cwd: dir, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] };
+  try {
+    const ref = execFileSync('git', ['symbolic-ref', '--short', 'HEAD'], opts).trim();
+    if (ref) return ref;
+  } catch {}
+  try {
+    return execFileSync('git', ['rev-parse', '--short', 'HEAD'], opts).trim();
+  } catch {
+    return '';
+  }
 }
 
 function fmtEta(epochSec) {
@@ -90,7 +109,9 @@ process.stdin.on('end', () => {
   const fiveHourUsed = rl && typeof rl.used_percentage === 'number' ? Math.round(rl.used_percentage) : null;
   const resetsAt = rl && rl.resets_at;
 
-  const dir = fmtPath(data);
+  const cwd = getCwd(data);
+  const dir = fmtPath(cwd);
+  const branch = gitBranch(cwd);
 
   const segments = [
     effort ? `🧠 ${model} ${effort}` : `🧠 ${model}`,
@@ -103,7 +124,7 @@ process.stdin.on('end', () => {
     segments.push(`⏳ ${eta}${renderBar(fiveHourUsed)} ${fiveHourUsed}%`);
   }
 
-  if (dir) segments.push(`📁 ${dir}`);
+  if (dir) segments.push(branch ? `📁 ${dir} ⎇ ${branch}` : `📁 ${dir}`);
 
   process.stdout.write(segments.join(' '));
 });
