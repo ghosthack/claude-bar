@@ -99,8 +99,8 @@ process.stdin.on('end', () => {
   ];
 
   if (fiveHourUsed !== null) {
-    const eta = resetsAt ? ` ~${fmtEta(resetsAt)}` : '';
-    segments.push(`⏳ ${renderBar(fiveHourUsed)} ${fiveHourUsed}%${eta}`);
+    const eta = resetsAt ? `${fmtEta(resetsAt)} ` : '';
+    segments.push(`⏳ ${eta}${renderBar(fiveHourUsed)} ${fiveHourUsed}%`);
   }
 
   if (dir) segments.push(`📁 ${dir}`);
